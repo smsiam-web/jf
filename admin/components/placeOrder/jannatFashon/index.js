@@ -18,6 +18,25 @@ import { notifications } from "@mantine/notifications";
 import firebase from "firebase";
 import OrderDetailsFormJF from "./OrderDetailsFormJF";
 import { updateConfig } from "@/app/redux/slices/configSlice";
+// Error code → meaning map (covers both common + send SMS errors)
+const ERROR_MEANINGS = {
+  0:  "Success. Everything worked as expected.",
+  400:"Missing or invalid parameter.",
+  403:"Permission denied.",
+  404:"Resource not found.",
+  405:"Authorization required.",
+  409:"Unknown server error.",
+  410:"Account expired.",
+  411:"Reseller account expired or suspended.",
+  412:"Invalid schedule.",
+  413:"Invalid Sender ID.",
+  414:"Message is empty.",
+  415:"Message is too long.",
+  416:"No valid number found.",
+  417:"Insufficient balance.",
+  420:"Content blocked.",
+  421:"Only registered phone number allowed until first recharge."
+};
 
 
 const validationSchema = Yup.object().shape({
@@ -95,8 +114,8 @@ const AddJFOrder = ({ onClick }) => {
 
 
   const placeOrder = async (values) => {
-
-    setLoading(true);
+    console.log(loading);
+    !loading && setLoading(true)
     const order = [];
     let totalPrice = 0;
     let weight = 0;
@@ -205,17 +224,20 @@ const AddJFOrder = ({ onClick }) => {
               };
            try {
                 db.collection("placeOrder").doc(orderID).set(orderData);
+                
+                
               } catch (error) {
                 notifications.show({
                   title: "Failed to place order",
                   message: `Please try again later..`,
                   color: "orange",
+                  autoClose: 5000,
                 });
-                // setLoading(false);
+                
                 setOrderResponse(null);
                 console.error("Error placing order:", error);
               } finally {
-
+                setOrderResponse(null);
                 dispatch(updateSingleCustomer(null));
                 router.push("/admin/place-order/id=" + orderID);
               }
@@ -225,7 +247,21 @@ const AddJFOrder = ({ onClick }) => {
             const errorText = await response.text();
             throw new Error(`Server error: ${errorText}`);
           }
-
+ if (result.type === "success" && result.code === 200) {
+    notifications.show({
+      title: "Success",
+      message: `Order placed successfully. Consignment ID: ${result.data.consignment_id}`,
+      color: "blue",
+      autoClose: 7000,
+    });
+  } else {
+    notifications.show({
+      title: "Error",
+      message: result.message || "Failed to place order.",
+      color: "red",
+      autoClose: 7000,
+    });
+  }
           createCustomer(values, customer_id, timestamp)
           sendConfirmationMsg(values, customer_id, timestamp)
           console.log("Order placed:", result.data);
@@ -240,17 +276,18 @@ const AddJFOrder = ({ onClick }) => {
           title: "Something went wrong!!!",
           message: `Please try again later..`,
           color: "orange",
+          autoClose: 7000,
         });
         setOrderResponse(null);
         setLoading(false);
         console.error("Transaction failed:", error);
       });
-    setLoading(false);
+  
   };
 
   const sendConfirmationMsg = async (values, orderID, tracking_code = "") => {
     const customer_name = values?.customer_name || "Customer";
-    const company_contact = "09647323700";
+    const company_contact = config[0]?.values.company_contact;;
 
     const url = "https://api.sms.net.bd/sendsms";
     const apiKey = config[0]?.values.bulk_auth;
@@ -269,11 +306,28 @@ const AddJFOrder = ({ onClick }) => {
       .post(url, formData)
       .then((response) => {
         console.log(response.data);
-        notifications.show({
-          title: response?.data.msg,
-          message: "Message sent successfully",
+        if(response?.data?.error == 0 ) {
+          notifications.show({
+          title: `SMS: Success`,
+          message: ERROR_MEANINGS[0],
           color: "blue",
+          autoClose: 7000,
         });
+        } else if(response?.data?.error == 417) {
+          notifications.show({
+          title:   `SMS: Error!`,
+          message: ERROR_MEANINGS[response?.data?.error] ,
+          color: "orange",
+          autoClose: 7000,
+        });
+        } else{
+          notifications.show({
+          title:  `SMS: Error!`,
+          message: ERROR_MEANINGS[response?.data?.error],
+          color: "red",
+          autoClose: 7000,
+        });
+        }
       })
       .catch((error) => {
         throw new Error(error);

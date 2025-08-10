@@ -293,11 +293,18 @@ const OrderDetails = ({ onClick, item }) => {
             className="bg-violet-400 font-medium hover:shadow-lg transition-all duration-300 text-white w-full h-14 text-md sm:text-lg "
           />
         </Link> */}
+        <Link href={"/admin/place-order/add-jannatfashon"}>
+          <Button
+            icon={<IoMdAdd size={26} />}
+            title="Add JF"
+            className="bg-black font-medium hover:shadow-lg transition-all duration-300 text-white w-full h-14 text-md sm:text-lg "
+          />
+        </Link>
         <Link href={"/admin/place-order/add-mango"}>
           <Button
             icon={<IoMdAdd size={26} />}
-            title="Add New"
-            className="bg-black font-medium hover:shadow-lg transition-all duration-300 text-white w-full h-14 text-md sm:text-lg "
+            title="Add Mango"
+            className="bg-green-500 font-medium hover:shadow-lg transition-all duration-300 text-white w-full h-14 text-md sm:text-lg "
           />
         </Link>
       </div>
