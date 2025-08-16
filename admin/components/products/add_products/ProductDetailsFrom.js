@@ -17,6 +17,10 @@ const ProductDetailsFrom = () => {
         <FormInput name="sku" placeholder="Product SKU" />
       </div>
       <div>
+        <span>Pathao Store ID</span>
+        <FormInput name="store_id" placeholder="Pathao Store ID" />
+      </div>
+      <div>
         <span>Product Title/Name</span>
         <FormInput name="product_name" placeholder="Product title" />
       </div>

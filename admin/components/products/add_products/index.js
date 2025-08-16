@@ -26,6 +26,7 @@ const validationSchema = Yup.object().shape({
   unit: Yup.string().required().label("Unit"),
   stock: Yup.number().required().label("Quantity"),
   price: Yup.number().required().label("Price"),
+  store_id: Yup.number().required().label("store id"),
   sale_price: Yup.number().label("Sale price"),
   product_tag: Yup.string()
     .required()
@@ -91,6 +92,7 @@ const AddProduts = ({ onClick }) => {
             sale_price: product_details?.sale_price || "",
             available_from: product_details?.available_from || "",
             product_tag: product_details?.product_tag || "",
+            store_id: product_details?.store_id || "",
           }}
           onSubmit={placeProduct}
           validationSchema={validationSchema}

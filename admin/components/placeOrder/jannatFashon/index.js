@@ -136,6 +136,7 @@ const AddJFOrder = ({ onClick }) => {
             order.push({
               title: s.join(" "),
               quantity: values[yup],
+              store_id: item?.store_id,
               price: item.sale_price,
               total_price: values[yup] * item.sale_price,
             });
@@ -181,7 +182,7 @@ const AddJFOrder = ({ onClick }) => {
  
 
         const orderPayload = {
-          store_id: 315936,
+          store_id: order[0]?.store_id,
           merchant_order_id: `${orderID}`,
           recipient_name: `${values.customer_name}`,
           recipient_phone: `${values.phone_number}`,
