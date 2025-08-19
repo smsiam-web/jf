@@ -308,11 +308,16 @@ export const invoiceGenerate = (item) => {
 
 export const generateStick = (item, barCodeImageLink) => {
   const doc = new jsPDF();
+// ✅ Get page width once
+const pageWidth = doc.internal.pageSize.getWidth();
 
-  let image = `${barCodeImageLink}`;
-  // console.log(image)
-
-  doc.addImage(image, 30, 30, 140, 35);
+// ✅ Center the barcode
+let image = `${barCodeImageLink}`;
+const barcodeWidth = 140;
+const barcodeHeight = 35;
+const barcodeX = (pageWidth - barcodeWidth) / 2; // center horizontally
+doc.addImage(image, barcodeX, 30, barcodeWidth, barcodeHeight);
+  // doc.addImage(image, 30, 30, 140, 35);
 
   doc.setFontSize(22).text(`Created by SM.Devware.`, 105, 285);
   doc.setFontSize(34);
@@ -327,36 +332,98 @@ export const generateStick = (item, barCodeImageLink) => {
     maxWidth: 140,
     align: "left",
   });
-  // doc.text(`Note: `, 22, 136);
-  // doc.setFontSize(28).text(`Some Note`, 54, 136);
-  doc.setFontSize(36).text(`${item?.sfc?.consignment_id}`, 70, 74);
-  // doc.setFontSize(36).text(`${item?.id}`, 120, 88);
+
+  // ✅ Center the consignment ID text
+const consignmentId = `${item?.courier?.consignment_id}`;
+doc.setFontSize(36);
+const textWidth = doc.getTextWidth(consignmentId);
+const textX = (pageWidth - textWidth) / 2;
+doc.text(consignmentId, textX, 74);
 
   doc.setFont(undefined, "bold");
-  doc.setFontSize(26).text(`(WGT: ${item?.weight}kg)`, 6, 74);
-  doc.setFontSize(36).text("Rajshahir Aam Wala", 38, 225);
-  doc
-    .setFontSize(40)
-    .text(
-      `${item?.customer_details.delivery_type ? "HOME" : "POINT"} DELIVERY`,
-      42,
-      180
-    );
-  doc
-    .setFontSize(40)
-    .text(`COD: ${item?.customer_details.salePrice}/-`, 65, 195);
+  // doc.setFontSize(26).text(`(WGT: ${item?.weight}kg)`, 6, 74);
+
+  // ✅ Center "Jannat Fashion"
+  // const pageWidth = doc.internal.pageSize.getWidth();
+  const centerText = (text, y, fontSize = 36) => {
+    doc.setFontSize(fontSize);
+    const textWidth = doc.getTextWidth(text);
+    const x = (pageWidth - textWidth) / 2;
+    doc.text(text, x, y);
+  };
+
+  centerText("Jannat Fashion", 225, 36); // centered version
+  centerText(
+    `${item?.customer_details.delivery_type ? "HOME" : "POINT"} DELIVERY`,
+    180,
+    40
+  );
+  centerText(`COD: ${item?.customer_details.salePrice}/-`, 195, 40);
+
   doc.setFontSize(36).text("Receiver:", 15, 88);
-  // doc.setFontSize(24).text(`(WGT:${item?.weight}kg)`, 12, 74);
   doc.setFontSize(36).text(`${item?.id}`, 120, 88);
   doc.setFontSize(36).text("Sender:", 15, 210);
-  doc.setFontSize(55).text("Rajshahir Aam Wala", 6, 25);
-  doc.setFontSize(36).text("Thanks for being with us.", 24, 270);
 
-  // doc.save(invoiceNo);
+  // Top brand title (can also be centered if you prefer)
+  centerText("Jannat Fashion", 25, 55);
+
+  centerText("Thanks for being with us.", 270, 36);
+
   doc.autoPrint();
-  //This is a key for printing
   doc.output("dataurlnewwindow");
 };
+
+// export const generateStick = (item, barCodeImageLink) => {
+//   const doc = new jsPDF();
+
+//   let image = `${barCodeImageLink}`;
+//   // console.log(image)
+
+//   doc.addImage(image, 30, 30, 140, 35);
+
+//   doc.setFontSize(22).text(`Created by SM.Devware.`, 105, 285);
+//   doc.setFontSize(34);
+//   doc.text(`Name: ${item?.customer_details.customer_name}`, 22, 100);
+//   doc.text(`Phone: ${item?.customer_details.phone_number}`, 22, 112);
+
+//   doc.text(`Hotline: +88 09647323700`, 30, 238);
+//   doc.text(`Address: Nouhata, Paba, Rajshahi.`, 9, 250);
+
+//   doc.text(`Address: `, 22, 124);
+//   doc.setFontSize(26).text(item?.customer_details.customer_address, 72, 124, {
+//     maxWidth: 140,
+//     align: "left",
+//   });
+//   // doc.text(`Note: `, 22, 136);
+//   // doc.setFontSize(28).text(`Some Note`, 54, 136);
+//   doc.setFontSize(36).text(`${item?.courier?.consignment_id}`, 70, 74);
+//   // doc.setFontSize(36).text(`${item?.id}`, 120, 88);
+
+//   doc.setFont(undefined, "bold");
+//   doc.setFontSize(26).text(`(WGT: ${item?.weight}kg)`, 6, 74);
+//   doc.setFontSize(36).text("Jannat Fashion", 38, 225);
+//   doc
+//     .setFontSize(40)
+//     .text(
+//       `${item?.customer_details.delivery_type ? "HOME" : "POINT"} DELIVERY`,
+//       42,
+//       180
+//     );
+//   doc
+//     .setFontSize(40)
+//     .text(`COD: ${item?.customer_details.salePrice}/-`, 65, 195);
+//   doc.setFontSize(36).text("Receiver:", 15, 88);
+//   // doc.setFontSize(24).text(`(WGT:${item?.weight}kg)`, 12, 74);
+//   doc.setFontSize(36).text(`${item?.id}`, 120, 88);
+//   doc.setFontSize(36).text("Sender:", 15, 210);
+//   doc.setFontSize(55).text("Jannat Fashion", 6, 25);
+//   doc.setFontSize(36).text("Thanks for being with us.", 24, 270);
+
+//   // doc.save(invoiceNo);
+//   doc.autoPrint();
+//   //This is a key for printing
+//   doc.output("dataurlnewwindow");
+// };
 
 // utils/orderUtils.js
 export const updateOrderStatus = async (db, orderId, orderData, newStatus) => {

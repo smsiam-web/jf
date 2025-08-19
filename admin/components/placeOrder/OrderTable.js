@@ -78,8 +78,8 @@ const OrderTable = () => {
   });
   // Change Status from print Action and check print Status
   const stickerStatus = async (item) => {
-    await setID(item?.sfc?.consignment_id);
-    item.status === "Processing"
+    await setID(item?.courier?.consignment_id);
+    item.status === "Processing" 
       ? updateStatus(item, "Shipped", item?.id)
       : toggleOpen;
     setFilterOrder(item);
