@@ -11,6 +11,7 @@ import { notifications } from "@mantine/notifications";
 import { updateOrderStatus } from "@/admin/utils/helpers";
 import { db } from "@/app/utils/firebase";
 import { selectUser } from "@/app/redux/slices/authSlice";
+import generateBulkPrintStickers from "./generateBulkSticker";
 
 const OrderDropDownload = () => {
   const [orders, setOrders] = useState(useSelector(selectAllOrder));
@@ -38,6 +39,23 @@ const OrderDropDownload = () => {
     setBulkOrder(bulkOrders); // Update the state
     if (!!bulkOrder.length && !loading) {
       generateBulkPrintInvoice(bulkOrder);
+    } else {
+      notifications.show({
+        title: "Bulk Print Failed. Orders(0)",
+        message: "An error occurred! Please select pending orders.",
+        color: "red",
+        autoClose: 3000,
+      });
+    }
+    setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+  };
+  const BulkSticker = async () => {
+    setLoading(true);
+    setBulkOrder(bulkOrders); // Update the state
+    if (!!bulkOrder.length && !loading) {
+      generateBulkPrintStickers(bulkOrder);
     } else {
       notifications.show({
         title: "Bulk Print Failed. Orders(0)",
@@ -168,6 +186,16 @@ const OrderDropDownload = () => {
           </div>
           <div className="col-span-2 gap-4 md:col-span-2 xl:col-span-1 min-w-full">
             <div className="grid grid-cols-2 gap-2">
+              <div className="md:col-span-1 col-span-2">
+                <Button
+                  onClick={() => BulkSticker()}
+                  disabled={loading}
+                  loading={loading}
+                  title="Bulk Sticker"
+                  className="bg-green-400 hover:bg-green-500 hover:shadow-lg transition-all duration-300 text-white w-full h-14"
+                  icon=<IoPrintOutline size={24} />
+                />
+              </div>
               <div className="md:col-span-1 col-span-2">
                 <Button
                   onClick={() => BulkAction()}

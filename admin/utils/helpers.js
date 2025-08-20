@@ -3,6 +3,8 @@ import "./fonts/lialinurBanglaFont";
 import "./fonts/LiAnis-normal";
 import "./fonts/SolaimanLipi-normal";
 import BarcodeComponent from "./BarcodeImage";
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+
 
 // create random unique id
 export const uuid = () => {
@@ -305,18 +307,30 @@ export const invoiceGenerate = (item) => {
   //This is a key for printing
   doc.output("dataurlnewwindow");
 };
-
+function barcodeDataURL(value, options = {}) {
+  const canvas = document.createElement('canvas');
+  JsBarcode(canvas, String(value), {
+    format: 'CODE128',
+    width: 2,       // bar thickness (increase for denser bars)
+    height: 60,     // bar height (px)
+    displayValue: false,
+    margin: 0,
+    ...options,
+  });
+  return canvas.toDataURL('image/png'); // "data:image/png;base64,...."
+}
 export const generateStick = (item, barCodeImageLink) => {
   const doc = new jsPDF();
 // ✅ Get page width once
 const pageWidth = doc.internal.pageSize.getWidth();
 
 // ✅ Center the barcode
-let image = `${barCodeImageLink}`;
-const barcodeWidth = 140;
-const barcodeHeight = 35;
+// let image = `${barCodeImageLink}`;
+const img = barcodeDataURL(item?.courier?.consignment_id);
+const barcodeWidth = 150;
+const barcodeHeight = 30;
 const barcodeX = (pageWidth - barcodeWidth) / 2; // center horizontally
-doc.addImage(image, barcodeX, 30, barcodeWidth, barcodeHeight);
+doc.addImage(img, barcodeX, 30, barcodeWidth, barcodeHeight);
   // doc.addImage(image, 30, 30, 140, 35);
 
   doc.setFontSize(22).text(`Created by SM.Devware.`, 105, 285);
