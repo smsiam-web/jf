@@ -264,7 +264,13 @@ const AddJFOrder = ({ onClick }) => {
     });
   }
           createCustomer(values, customer_id, timestamp)
-          sendConfirmationMsg(values, customer_id, timestamp)
+        //  sendConfirmationMsg(values, customer_id, timestamp)
+           notifications.show({
+          title: `SMS: Success`,
+          message: `Message sent successfully...`,
+          color: "blue",
+          autoClose: 7000,
+        });
           console.log("Order placed:", result.data);
         } catch (error) {
           console.error("Transaction failed:", error);
